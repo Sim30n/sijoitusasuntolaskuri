@@ -12,6 +12,8 @@ Given a loan amount, interest rate, rent, housing company fee ("yhtiövastike"),
 
 You can either enter the property/loan details manually in the form, or upload a CSV file listing multiple candidate apartments (columns: `hinta`, `vuokra`, `yhtiövastike`); the app then evaluates all of them and pre-fills the form with the most profitable one at a 5-year horizon.
 
+You can also paste a link to a listing (or upload a PDF/screenshot of one) and have Claude read it and pre-fill the purchase price, rent, and housing fee fields automatically.
+
 ## Running locally (without Docker)
 
 Requires Python 3.11+.
@@ -22,6 +24,17 @@ streamlit run my_app.py
 ```
 
 The app will be available at http://localhost:8501.
+
+### Listing autofill (optional)
+
+To use the "Hae tiedot ilmoituksesta" (fetch listing info) feature, set an Anthropic API key before starting the app:
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+streamlit run my_app.py
+```
+
+Without a key set, the rest of the app works as usual — only that feature will show an error if used.
 
 ## Running with Docker
 

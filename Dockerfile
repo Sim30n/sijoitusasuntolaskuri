@@ -5,7 +5,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY my_app.py .
+COPY my_app.py listing_extractor.py .
 
 EXPOSE 8501
 

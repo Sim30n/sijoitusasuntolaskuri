@@ -1,3 +1,4 @@
 /venv-thinkpad
 /venv-desktop
 /.vscode
+__pycache__/
