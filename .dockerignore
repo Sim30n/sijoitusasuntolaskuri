@@ -6,3 +6,5 @@ venv-desktop
 .git
 .gitignore
 README.md
+.env
+.env.example

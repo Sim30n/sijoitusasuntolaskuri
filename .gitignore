@@ -2,3 +2,4 @@
 /venv-desktop
 /.vscode
 __pycache__/
+.env

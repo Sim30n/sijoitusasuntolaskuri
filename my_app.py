@@ -4,8 +4,11 @@ import numpy as np
 
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
+from dotenv import load_dotenv
 
 import listing_extractor
+
+load_dotenv()
 
 
 class FinanceCalculator:

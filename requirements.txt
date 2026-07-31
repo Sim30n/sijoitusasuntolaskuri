@@ -2,4 +2,5 @@ streamlit==1.60.0
 pandas==2.2.0
 plotly==5.18.0
 numpy==1.26.4
-anthropic==0.120.2 
+anthropic==0.120.2
+python-dotenv==1.0.1 
