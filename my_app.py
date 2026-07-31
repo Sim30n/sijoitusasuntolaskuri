@@ -215,49 +215,40 @@ def main():
     if extracted_listing.get("notes"):
         st.info(extracted_listing["notes"])
 
-    uploaded_file = st.file_uploader("Lataa CSV-tiedosto kaikista kohteista", type=["csv"])
-
-    if uploaded_file is not None:
-        data_list, loan = analyze_csv_file(uploaded_file)
-        csv_default_target_date = datetime.now() + relativedelta(years=5)
-        highest_kokonaisvoitto_df = get_df_with_highest_kokonaisvoitto(data_list, csv_default_target_date)
-        lainan_suuruus = -highest_kokonaisvoitto_df["pääoma"].iloc[0] - highest_kokonaisvoitto_df["oma_pääoma"].iloc[0]
-        korko = 2.8
-        vuotta = 20
-        kulut = 2.5
-        vuokra = highest_kokonaisvoitto_df["vuokra"].max()
-        yhtiovastike = -highest_kokonaisvoitto_df["yhtiövastike"].iloc[0]
-        myyntihinta = highest_kokonaisvoitto_df["myyntihinta"].iloc[0]
-        capital = highest_kokonaisvoitto_df["oma_pääoma"].iloc[0]
-        valityspalkkio = 0.06
-    else:
-        lainan_suuruus = 62000
-        korko = 2.8
-        vuotta = 20
-        kulut = 2.5
-        vuokra = 460
-        yhtiovastike = 112
-        myyntihinta = 64000
-        capital = 2000
-        valityspalkkio = 0.06
+    korko = 2.8
+    vuotta = 20
+    kulut = 2.5
+    vuokra = 460
+    yhtiovastike = 112
+    myyntihinta = 64000
+    asunnon_hinta = 64000
+    oma_paaoma_prosentti = 3.0
+    valityspalkkio = 0.06
 
     if extracted_listing.get("purchase_price") is not None:
-        myyntihinta = extracted_listing["purchase_price"]
+        asunnon_hinta = extracted_listing["purchase_price"]
     if extracted_listing.get("monthly_rent") is not None:
         vuokra = extracted_listing["monthly_rent"]
     if extracted_listing.get("housing_fee") is not None:
         yhtiovastike = extracted_listing["housing_fee"]
 
     st.subheader("Kiinteistön tiedot")
-    capital = st.number_input("Oma pääoma (€)", min_value=0, value=int(capital), step=100)
+    asunnon_hinta = st.number_input("Asunnon hinta (€)", min_value=0, value=int(asunnon_hinta), step=1000)
 
     st.subheader("Laina")
+    oma_paaoma_prosentti = st.slider("Oma pääoma (%)", min_value=0.0, max_value=100.0, value=float(oma_paaoma_prosentti), step=0.5, format="%.1f")
     col1, col2, col3 = st.columns(3)
-    lainan_suuruus = col1.number_input("Lainan suuruus (€)", min_value=0, value=int(lainan_suuruus), step=1000)
-    vuotta = col2.number_input("Laina-aika (vuotta)", min_value=1, value=int(vuotta), step=1)
-    kulut = col3.number_input("Kuukausittaiset lainakulut (€/kk)", min_value=0.0, value=float(kulut), step=0.1, format="%.2f")
+    vuotta = col1.number_input("Laina-aika (vuotta)", min_value=1, value=int(vuotta), step=1)
+    kulut = col2.number_input("Kuukausittaiset lainakulut (€/kk)", min_value=0.0, value=float(kulut), step=0.1, format="%.2f")
+    loan_cost = -int(col3.number_input("Lainan perustamiskustannus (€)", min_value=0, step=1, value=690))
     korko = st.slider("Korko (%)", min_value=0.0, max_value=15.0, value=float(korko), step=0.1, format="%.2f")
-    loan_cost = -int(st.number_input("Lainan perustamiskustannus (€)", min_value=0, step=1, value=690))
+
+    capital = asunnon_hinta * oma_paaoma_prosentti / 100
+    lainan_suuruus = asunnon_hinta - capital
+
+    col1, col2 = st.columns(2)
+    col1.metric("Lainan suuruus (€)", f"{lainan_suuruus:,.0f} €")
+    col2.metric("Oma pääoma (€)", f"{capital:,.0f} €")
 
     st.subheader("Vuokraus")
     col1, col2, col3 = st.columns(3)
