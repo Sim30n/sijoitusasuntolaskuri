@@ -24,10 +24,17 @@ streamlit run my_app.py
 # Docker
 docker build -t sijoitusasuntolaskuri .
 docker run --rm -p 8501:8501 --env-file .env sijoitusasuntolaskuri
+
+# Tests (Robot Framework: unit + integration + system layers, see tests/README.md)
+pip install -r tests/requirements-test.txt && rfbrowser init
+tests/run_tests.sh
 ```
 
-There is no test suite, linter, or type checker configured in this repo. Verify changes by
-running the app and exercising the relevant UI flow in a browser (see the `run` skill).
+There is no linter or type checker configured in this repo. There is a Robot Framework test
+suite under `tests/` (unit tests for `FinanceCalculator`, integration tests for the CSV batch
+pipeline and `listing_extractor.py`, and system tests that drive the real running app in a
+browser) — see `tests/README.md` for the full strategy. For UI changes, also verify by running
+the app and exercising the relevant flow in a browser (see the `run` skill).
 
 The listing-autofill feature requires `ANTHROPIC_API_KEY`, set via env var or a `.env` file
 (copy `.env.example`, loaded automatically by `python-dotenv`). Without a key, that one feature

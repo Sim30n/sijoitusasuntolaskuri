@@ -1,0 +1,6 @@
+# Test-only dependencies. Install alongside the app's own requirements.txt:
+#   pip install -r requirements.txt -r tests/requirements-test.txt
+#   rfbrowser init  # one-time, downloads/wires up the Playwright driver Robot's Browser library uses
+
+robotframework==7.4.2
+robotframework-browser==20.1.0
