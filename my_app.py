@@ -4,6 +4,11 @@ import numpy as np
 
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
+from dotenv import load_dotenv
+
+import listing_extractor
+
+load_dotenv()
 
 
 class FinanceCalculator:
@@ -178,6 +183,38 @@ def get_df_with_highest_kokonaisvoitto(finance_data_list, target_date):
 
 
 def main():
+    st.subheader("Hae tiedot ilmoituksesta (valinnainen)")
+    st.caption(
+        "Anna asuntoilmoituksen linkki tai lataa tiedosto (PDF/kuva), niin Claude "
+        "poimii hinnan, vuokran ja yhtiövastikkeen ja täyttää ne alle."
+    )
+    col1, col2 = st.columns(2)
+    listing_url = col1.text_input("Ilmoituksen linkki", key="listing_url")
+    listing_file = col2.file_uploader(
+        "tai lataa tiedosto",
+        type=["pdf", "png", "jpg", "jpeg", "webp"],
+        key="listing_file",
+    )
+
+    if st.button("Hae tiedot ilmoituksesta"):
+        if not listing_url and listing_file is None:
+            st.warning("Anna ensin ilmoituksen linkki tai lataa tiedosto.")
+        else:
+            with st.spinner("Haetaan tietoja Claudelta..."):
+                try:
+                    if listing_url:
+                        extracted = listing_extractor.extract_from_url(listing_url)
+                    else:
+                        extracted = listing_extractor.extract_from_file(listing_file)
+                    st.session_state["extracted_listing"] = extracted
+                    st.success("Tiedot haettu. Kentät alla on täytetty automaattisesti.")
+                except listing_extractor.ListingExtractionError as exc:
+                    st.error(str(exc))
+
+    extracted_listing = st.session_state.get("extracted_listing", {})
+    if extracted_listing.get("notes"):
+        st.info(extracted_listing["notes"])
+
     uploaded_file = st.file_uploader("Lataa CSV-tiedosto kaikista kohteista", type=["csv"])
 
     if uploaded_file is not None:
@@ -203,7 +240,14 @@ def main():
         myyntihinta = 64000
         capital = 2000
         valityspalkkio = 0.06
-    
+
+    if extracted_listing.get("purchase_price") is not None:
+        myyntihinta = extracted_listing["purchase_price"]
+    if extracted_listing.get("monthly_rent") is not None:
+        vuokra = extracted_listing["monthly_rent"]
+    if extracted_listing.get("housing_fee") is not None:
+        yhtiovastike = extracted_listing["housing_fee"]
+
     st.subheader("Kiinteistön tiedot")
     capital = st.number_input("Oma pääoma (€)", min_value=0, value=int(capital), step=100)
 
